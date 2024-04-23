@@ -96,14 +96,14 @@ class BuildIDL(Command):
         self.mkpath(self.examples_dir)
         current_dir = os.path.join(self.examples_dir, 'SimpleService')
         idl_file = os.path.join(current_dir, "MyService.idl")
-        pkg_param = '-Wbpackages=OpenRTM_aist.examples.SimpleService'
-        self.compile_one_idl(idl_file, pkg_param, current_dir)
+        #pkg_param = '-Wbpackages=OpenRTM_aist.examples.SimpleService'
+        self.compile_one_idl(idl_file, current_dir)
 
         #../examples/AutoTest
         current_dir = os.path.join(self.examples_dir, 'AutoTest')
         idl_file = os.path.join(current_dir, "AutoTestService.idl")
-        pkg_param = '-Wbpackages=OpenRTM_aist.examples.AutoTest'
-        self.compile_one_idl(idl_file, pkg_param, current_dir)
+        #pkg_param = '-Wbpackages=OpenRTM_aist.examples.AutoTest'
+        self.compile_one_idl(idl_file, current_dir)
 
     def copy_examples_idl(self):
         log.info('Copying IDL files of sample RTC')
