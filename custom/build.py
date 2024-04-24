@@ -47,7 +47,7 @@ class BuildIDL(Command):
             self.omniidl = 'omniidl'
         if not self.stubs_dir:
             self.set_undefined_options('build', ('build_base', 'stubs_dir'))
-            self.stubs_dir = os.path.join(self.stubs_dir, 'stubs')
+            self.stubs_dir = os.path.join(self.stubs_dir, 'stubs', 'OpenRTM_aist', 'RTM_IDL')
         if not self.idl_dir:
             self.set_undefined_options('build', ('build_base', 'idl_dir'))
             self.idl_dir = os.path.join(self.idl_dir, 'OpenRTM_aist/RTM_IDL')
@@ -55,11 +55,11 @@ class BuildIDL(Command):
         self.examples_dir = os.path.join(os.getcwd(), 'OpenRTM_aist/examples')
         self.set_undefined_options('build', ('build_lib', 'build_lib'))
 
-    def compile_one_idl(self, idl_f, pkg_param, outdir):
+    def compile_one_idl(self, idl_f, outdir):
         outdir_param = '-C' + outdir
         idl_path_param = '-I' + 'OpenRTM_aist/RTM_IDL'
         p = subprocess.Popen([self.omniidl, '-bpython', idl_path_param,
-                              outdir_param, pkg_param, idl_f],
+                              outdir_param, idl_f],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
@@ -70,16 +70,14 @@ class BuildIDL(Command):
     def compile_idl(self):
         log.info('***Generating Python stubs from IDL files')
         self.mkpath(self.stubs_dir)
-        pkg_param = '-Wbpackage=OpenRTM_aist.RTM_IDL'
         idl_files = [os.path.join(self.idl_src_dir, f) for f in baseidl_files]
         for f in idl_files:
-            self.compile_one_idl(f, pkg_param, self.stubs_dir)
+            self.compile_one_idl(f, self.stubs_dir)
 
     def move_stubs(self):
         stub_dest = os.path.join(self.build_lib, 'OpenRTM_aist', 'RTM_IDL')
         log.info('Moving stubs to package directory {}'.format(stub_dest))
-        self.copy_tree(os.path.join(self.stubs_dir, 'OpenRTM_aist', 'RTM_IDL'),
-                       stub_dest)
+        self.copy_tree(os.path.join(self.stubs_dir), stub_dest)
 
     def copy_idl(self):
         log.info('Copying IDL files')
@@ -96,14 +94,12 @@ class BuildIDL(Command):
         self.mkpath(self.examples_dir)
         current_dir = os.path.join(self.examples_dir, 'SimpleService')
         idl_file = os.path.join(current_dir, "MyService.idl")
-        pkg_param = '-Wbpackages=OpenRTM_aist.examples.SimpleService'
-        self.compile_one_idl(idl_file, pkg_param, current_dir)
+        self.compile_one_idl(idl_file, current_dir)
 
         #../examples/AutoTest
         current_dir = os.path.join(self.examples_dir, 'AutoTest')
         idl_file = os.path.join(current_dir, "AutoTestService.idl")
-        pkg_param = '-Wbpackages=OpenRTM_aist.examples.AutoTest'
-        self.compile_one_idl(idl_file, pkg_param, current_dir)
+        self.compile_one_idl(idl_file, current_dir)
 
     def copy_examples_idl(self):
         log.info('Copying IDL files of sample RTC')
@@ -121,4 +117,7 @@ class BuildIDL(Command):
         self.copy_idl()
         self.compile_examples_idl()
         self.copy_examples_idl()
+        # copying OpenRTM-aist.pth file
+        self.copy_file(os.path.join(".", "OpenRTM-aist.pth"), self.build_lib,
+                preserve_mode=False)
 
